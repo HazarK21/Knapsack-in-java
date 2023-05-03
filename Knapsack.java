@@ -5,59 +5,59 @@ import java.io.BufferedReader;
 public class Knapsack {
 
     public static void main(String[] args) throws IOException {
-        int[] degerler;
-        int[] agirlik;
-        int kapasite;
+        int[] values;
+        int[] weight;
+        int capacity;
         int numItems;
 
-        String[] dosyaAdlari = {"ks_4.txt", "ks_19.txt", "ks_200.txt", "ks_10000.txt"};
-        for (String dosyaAdi : dosyaAdlari) {
-            BufferedReader reader = new BufferedReader(new FileReader(dosyaAdi));
+        String[] fileNames = {"ks_4.txt", "ks_19.txt", "ks_200.txt", "ks_10000.txt"};
+        for (String fileName : fileNames) {
+            BufferedReader reader = new BufferedReader(new FileReader(fileName));
 
-            String[] ilkSatir = reader.readLine().split(" ");
-            numItems = Integer.parseInt(ilkSatir[0]);
-            kapasite = Integer.parseInt(ilkSatir[1]);
+            String[] firstLine = reader.readLine().split(" ");
+            numItems = Integer.parseInt(firstLine[0]);
+            capacity = Integer.parseInt(firstLine[1]);
 
-            degerler = new int[numItems];
-            agirlik = new int[numItems];
+            values = new int[numItems];
+            weight = new int[numItems];
 
             for (int i = 0; i < numItems; i++) {
                 String[] line = reader.readLine().split(" ");
-                degerler[i] = Integer.parseInt(line[0]);
-                agirlik[i] = Integer.parseInt(line[1]);
+                values[i] = Integer.parseInt(line[0]);
+                weight[i] = Integer.parseInt(line[1]);
             }
 
-            int[] result = knapsack(kapasite, degerler, agirlik);
+            int[] result = knapsack(capacity, values, weight);
 
-            long basla = System.currentTimeMillis();
-            System.out.println("" + dosyaAdi +" "+ "Dosyasi isleniyor...");
-            System.out.println(dosyaAdi + " " + "optimal value degeri" + " = " + result[0]);
+            long start = System.currentTimeMillis();
+            System.out.println("" + fileName +" "+ "Reading File...");
+            System.out.println(fileName + " " + "optimal value" + " = " + result[0]);
             for (int i = 0; i < numItems; i++) {
                 System.out.print(result[1] % 2 + " ");
                 result[1] /= 2;
             }
-            long bitir = System.currentTimeMillis();
-            long timeElapsed = bitir - basla;
-            System.out.println("\nHarcanan sure(ms)"+" "+ timeElapsed);
+            long stop = System.currentTimeMillis();
+            long timeElapsed = stop - start;
+            System.out.println("\nTime Elapsed(ms)"+" "+ timeElapsed);
             System.out.println();
         }
     }
 
-    public static int[] knapsack(int kapasite, int[] degerler, int[] agirlik) {
-        int n = degerler.length;
-        int[] dp = new int[kapasite + 1];
+    public static int[] knapsack(int capacity, int[] values, int[] weight) {
+        int n = values.length;
+        int[] dp = new int[capacity + 1];
         for (int i = 0; i < n; i++) {
-            for (int w = kapasite; w >= agirlik[i]; w--) {
-                dp[w] = Math.max(dp[w], dp[w - agirlik[i]] + degerler[i]);
+            for (int w = capacity; w >= weight[i]; w--) {
+                dp[w] = Math.max(dp[w], dp[w - weight[i]] + values[i]);
             }
         }
-        int secilenler = 0;
-        for (int i = n - 1, w = kapasite; i >= 0 && w > 0; i--) {
-            if (w - agirlik[i] >= 0 && dp[w] == dp[w - agirlik[i]] + degerler[i]) {
-                secilenler |= 1 << i;
-                w -= agirlik[i];
+        int chosen = 0;
+        for (int i = n - 1, w = capacity; i >= 0 && w > 0; i--) {
+            if (w - weight[i] >= 0 && dp[w] == dp[w - weight[i]] + values[i]) {
+                chosen |= 1 << i;
+                w -= weight[i];
             }
         }
-        return new int[]{dp[kapasite], secilenler};
+        return new int[]{dp[capacity], chosen};
     }
 }
